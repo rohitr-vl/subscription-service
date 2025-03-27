@@ -1,0 +1,12 @@
+package models
+
+import "time"
+
+type Student struct {
+	ID        int
+	FullName  string
+	Class     int
+	Section   string
+	Age       int
+	CreatedAt time.Time
+}
