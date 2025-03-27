@@ -10,3 +10,14 @@ type Student struct {
 	Age       int
 	CreatedAt time.Time
 }
+
+func addStudent() *Student {
+	return &Student{
+		ID: 1,
+		FullName: "Alexander Bell",
+		Class: 1,
+		Section: "A",
+		Age: 6,
+		CreatedAt: time.Now(),
+	}
+}

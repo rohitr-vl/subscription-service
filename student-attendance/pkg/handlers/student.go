@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"student-attendance/pkg/services"
 
 	"github.com/go-chi/chi"
 )
@@ -10,15 +9,18 @@ import (
 type StudentHandler struct {
 }
 
+func newStudentHandler(svr Server) {
+
+}
 func (studHand StudentHandler) GetStudentList(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id != "" {
-		services.getStudentById(w, r)
+		// studInst.GetStudentById(id)
 	} else {
-		services.getStudents(w, r)
+		// studInst.GetStudents()
 	}
 }
 
 func (studHand StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
-	services.createStudent(w, r)
+	// studInst.CreateStudent(r.Body)
 }

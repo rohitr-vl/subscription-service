@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func routesGeneral() {
+func routesGeneral() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -21,6 +21,7 @@ func routesGeneral() {
 	r.Mount("/student", StudentRoutes())
 
 	r.Mount("/attendance", AttendanceRoutes())
+	return r
 }
 
 func StudentRoutes() chi.Router {

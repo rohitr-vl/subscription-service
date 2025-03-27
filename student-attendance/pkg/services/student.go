@@ -1,27 +1,30 @@
 package services
 
 import (
-	"net/http"
 	"student-attendance/pkg/data/models"
 )
 
-type student Interface {
-	getStudentById(w http.ResponseWriter, r *http.Request) (*student, error)
-	getStudents(w http.ResponseWriter, r *http.Request) ([]student, error)
-	createStudent(w http.ResponseWriter, r *http.Request) (*student, error)
+type StudentIntf interface {
+	GetStudentById(int) (*models.Student, error)
+	GetStudents() ([]models.Student, error)
+	CreateStudent([]string) (*models.Student, error)
 }
 
 type StudentInst struct {
 }
 
-func (studInst StudentInst) getStudentById(w http.ResponseWriter, r *http.Request) {
-
+func (studInst *StudentInst) GetStudentById(stud_id int) (*models.Student, error) {
+	panic("unimplemented")
 }
 
-func (studInst StudentInst) getStudents(w http.ResponseWriter, r *http.Request) {
-
+func (studInst *StudentInst) GetStudents() ([]models.Student, error) {
+	panic("unimplemented")
 }
 
-func (studInst StudentInst) createStudent(w http.ResponseWriter, r *http.Request) {
+func (studInst *StudentInst) CreateStudent([]string) (*models.Student, error) {
+	panic("unimplemented")
+}
 
+func NewStudent() StudentIntf {
+	return &StudentInst{}
 }
