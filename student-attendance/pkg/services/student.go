@@ -14,17 +14,17 @@ type StudentInst struct {
 }
 
 func (studInst *StudentInst) GetStudentById(stud_id int) (*models.Student, error) {
-	panic("unimplemented")
+	return &models.allStudentsList[stud_id], nil
 }
 
 func (studInst *StudentInst) GetStudents() ([]models.Student, error) {
-	panic("unimplemented")
+	models.allStudentsList
 }
 
-func (studInst *StudentInst) CreateStudent([]string) (*models.Student, error) {
-	panic("unimplemented")
+func (studInst *StudentInst) CreateStudent(postData []string) (*models.Student, error) {
+	models.allStudentsList = append(models.allStudentsList, postData)
 }
 
-func NewStudent() StudentIntf {
+func NewStudent() *StudentInst {
 	return &StudentInst{}
 }

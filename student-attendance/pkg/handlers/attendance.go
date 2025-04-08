@@ -1,15 +1,20 @@
 package handlers
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 type AttendanceHandler struct {
+	attnSvr Server
 }
 
-func NewAttendanceHandler(svr Server) {
-
+func NewAttendanceHandler(svr Server) *AttendanceHandler {
+	return &AttendanceHandler{attnSvr: svr}
 }
 
 func (attnHand AttendanceHandler) GetAttendance(w http.ResponseWriter, r *http.Request) {
+	log.Println("\n In handler, GetAttendance")
 	// getAttendance(w, r)
 }
 

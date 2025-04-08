@@ -1,23 +1,29 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
 )
 
 type StudentHandler struct {
+	studSvr Server
 }
 
-func newStudentHandler(svr Server) {
-
+func NewStudentHandler(svr Server) *StudentHandler{
+	return &StudentHandler{studSvr: svr}
 }
 func (studHand StudentHandler) GetStudentList(w http.ResponseWriter, r *http.Request) {
+	log.Println("\n In handler, GetStudentList")
+	// GetStudents()
+	
+}
+
+func (studHand StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id != "" {
-		// studInst.GetStudentById(id)
-	} else {
-		// studInst.GetStudents()
+		// GetStudentById(id)
 	}
 }
 

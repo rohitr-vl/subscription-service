@@ -17,6 +17,10 @@ func routesGeneral() *chi.Mux {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Student Attendance System"))
 	})
+	r.Get("/counter", func(w http.ResponseWriter, r *http.Request) {
+		commonHandler := handlers.CommonHandler{}
+		w.Write(commonHandler.GetApiCallCount(w, r))
+	})
 
 	r.Mount("/student", StudentRoutes())
 
@@ -26,8 +30,10 @@ func routesGeneral() *chi.Mux {
 
 func StudentRoutes() chi.Router {
 	studentRouter := chi.NewRouter()
-	studentHandler := handlers.StudentHandler{}
+
+	studentHandler := handlers.NewStudentHandler()
 	studentRouter.Get("/", studentHandler.GetStudentList)
+	studentRouter.Get("/{student_id}", studentHandler.GetStudent)
 	studentRouter.Post("/", studentHandler.CreateStudent)
 	return studentRouter
 }
