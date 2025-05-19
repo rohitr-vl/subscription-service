@@ -32,6 +32,7 @@ type Message struct {
 	To          string
 	Subject     string
 	Attachments []string
+	AttachmentMap map[string]string
 	Data        any
 	DataMap     map[string]any
 	Template    string
@@ -64,12 +65,14 @@ func (m *Mail) sendMail(msg Message, errorChan chan error) {
 	if msg.FromName == "" {
 		msg.FromName = m.FromName
 	}
-
-	data := map[string]any{
-		"message": msg.Data,
+	if msg.AttachmentMap == nil {
+		msg.AttachmentMap = make(map[string]string)
 	}
-	msg.DataMap = data
-
+	if len(msg.DataMap) == 0 {
+		msg.DataMap = make(map[string]any)
+	}
+	msg.DataMap["message"] = msg.Data
+	
 	// build html mail
 	formattedMessage, err := m.buildHTMLMessage(msg)
 	if err != nil {
@@ -107,6 +110,13 @@ func (m *Mail) sendMail(msg Message, errorChan chan error) {
 			email.AddAttachment(x)
 		}
 	}
+	// to assign name to attachment file
+	if len(msg.AttachmentMap) > 0 {
+		for key, value := range msg.AttachmentMap {
+			email.AddAttachment(value, key)
+		}
+	}
+
 	err = email.Send(smtpClient)
 	if err != nil {
 		errorChan <- err
