@@ -14,6 +14,9 @@ import (
 	"github.com/phpdave11/gofpdf/contrib/gofpdi"
 )
 
+var pathToManual = "./pdf"
+var tmpPath = "./tmp"
+
 func (app *Config) HomePage(w http.ResponseWriter, r *http.Request) {
 	// if empty, this is called stub handler
 	app.render(w, r, "home.page.gohtml", nil)
@@ -25,7 +28,8 @@ func (app *Config) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 func (app *Config) PostLoginPage(w http.ResponseWriter, r *http.Request) {
 	_ = app.Session.RenewToken(r.Context())
-
+	// reqStr, _ := httputil.DumpRequest(r, true)
+	// app.InfoLog.Println("Received POST request:", string(reqStr))
 	err := r.ParseForm()
 	if err != nil {
 		app.ErrorLog.Println(err)
@@ -33,14 +37,9 @@ func (app *Config) PostLoginPage(w http.ResponseWriter, r *http.Request) {
 	// get email id and password
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
-	/*
-		app.InfoLog.Println("Received input:", email, password)
-		allUsers, err := app.Models.User.GetAll()
-		if err != nil {
-			app.ErrorLog.Println("error fetching allUsers:", err)
-		}
-		app.InfoLog.Println("All users:", allUsers)
-	*/
+
+	app.InfoLog.Println("Received input:", email, password)
+
 	user, err := app.Models.User.GetByEmail(email)
 	if err != nil {
 		app.ErrorLog.Println("User not found in DB. err:", err)
@@ -48,9 +47,12 @@ func (app *Config) PostLoginPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+	app.InfoLog.Println("User from DB:", user)
 
 	// verify password
-	validPassword, err := user.PasswordMatches(password)
+	// we use "app.Models.User." instead of "user." because when tests are run, 
+	// we want the data to be fetched from test-models and not actual db
+	validPassword, err := app.Models.User.PasswordMatches(user.Password, password)
 	if err != nil {
 		app.ErrorLog.Println("Error while matching password. err:", err)
 		app.Session.Put(r.Context(), "error", "Invalid credentials.")
@@ -106,7 +108,7 @@ func (app *Config) PostRegisterPage(w http.ResponseWriter, r *http.Request) {
 		IsAdmin: 0,
 	}
 
-	_, err = u.Insert(u)
+	_, err = app.Models.User.Insert(u)
 	if err != nil {
 		app.Session.Put(r.Context(), "error", "Unable to create user.")
 		app.Session.Put(r.Context(), "flash", "Technical error occurred, could not register.")
@@ -151,7 +153,7 @@ func (app *Config) ActivateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u.Active = 1
-	err = u.Update()
+	err = app.Models.User.Update(*u)
 	if err!= nil {
 		app.Session.Put(r.Context(), "error", "Unable to update user.")
 		http.Redirect(w,r,"/",http.StatusSeeOther)
@@ -231,7 +233,7 @@ func (app *Config) SubscribeToPlan(w http.ResponseWriter, r *http.Request) {
 		defer app.Wait.Done()
 
 		pdf := app.generateManual(user, plan)
-		err := pdf.OutputFileAndClose(fmt.Sprintf("./tmp/%d_manual.pdf", user.ID))
+		err := pdf.OutputFileAndClose(fmt.Sprintf("%s/%d_manual.pdf", tmpPath, user.ID))
 		if err != nil {
 			app.ErrorChan <- err
 			return
@@ -241,7 +243,7 @@ func (app *Config) SubscribeToPlan(w http.ResponseWriter, r *http.Request) {
 			Subject: "Your Manual",
 			Data: "Your user manual is attached",
 			AttachmentMap: map[string]string{
-				"Manual.pdf": fmt.Sprintf("./tmp/%d_manual.pdf", user.ID),
+				"Manual.pdf": fmt.Sprintf("%s/%d_manual.pdf", tmpPath, user.ID),
 			},
 		}
 		app.sendEmail(msg)
@@ -263,7 +265,7 @@ func (app *Config) generateManual(u data.User, plan *data.Plan) *gofpdf.Fpdf {
 	//simulating pdf creation time
 	time.Sleep(5*time.Second)
 
-	t := importer.ImportPage(pdf, "./pdf/manual.pdf",1, "/MediaBox")
+	t := importer.ImportPage(pdf, fmt.Sprintf("%s/manual.pdf", pathToManual),1, "/MediaBox")
 	pdf.AddPage()
 	importer.UseImportedTemplate(pdf,t,0,0,215.9,0)
 	pdf.SetX(75)

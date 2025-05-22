@@ -15,15 +15,16 @@ func New(dbPool *sql.DB) Models {
 	db = dbPool
 
 	return Models{
-		User: User{},
-		Plan: Plan{},
+		User: &User{},
+		Plan: &Plan{},
 	}
 }
 
 // Models is the type for this package. Note that any model that is included as a member
 // in this type is available to us throughout the application, anywhere that the
 // app variable is used, provided that the model is also added in the New function.
+// By using interface, we make it testable by modifying data package
 type Models struct {
-	User User
-	Plan Plan
+	User UserInterface
+	Plan PlanInterface
 }
